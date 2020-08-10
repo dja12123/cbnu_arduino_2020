@@ -1,0 +1,82 @@
+int leds[] = {2, 3, 4, 5, 6, 7, 8, 9};
+// 지정된 7세그먼트 led 개수
+int led_num = 8;
+// 7세그먼트 led 
+int button = 12;
+// 택트 스위치 핀번호
+int num= 0;
+// 현재 LED에 표시되고 있는 숫자
+int trig = 10;
+int echo = 11;
+int cds = A0;
+bool beforeState = 1;
+
+byte bnums[11] = {
+  0b11100111,//0
+  0b00100001,//1
+  0b11001011,//2
+  0b01101011,//3
+  0b00101101,//4
+  0b01101110,//5
+  0b11101110,//6
+  0b00100111,//7
+  0b11101111,//8
+  0b01101111,//9
+  0b00010000,//over 9
+};
+
+void setup() {
+  Serial.begin(9600);
+  for (int i = 0 ; i < led_num ; i++) {
+    // 7세그먼트 led에 연결된 핀을 출력으로 설정
+    pinMode(leds[i], OUTPUT);
+  }
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  pinMode(button, INPUT_PULLUP);
+  // 택트 스위치를 input_pullup으로 설정
+}
+
+void loop() {
+  /*
+  int cdsValue = analogRead(cds);
+  num = constrain(map(cdsValue, 400, 1000, 9, 0), 0, 9);
+  // map으로 cds센서데이터(0~1023)범위중 400~1000범위를 9~0으로 맵핑
+  // constrain으로 맵핑한 범위의 값을 제한
+  Serial.println(cdsValue);
+  */
+  
+  
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  // 초음파 발신
+  int distance = pulseIn(echo, HIGH) * 17 / 1000;
+  // 초음파 수신후 거리 계산(cm단위)
+  num = distance / 10;
+  if(num > 10)
+  {// 범위제한
+    num = 10;
+  }
+  
+  /*
+  bool nowState = digitalRead(button);
+  if(nowState != beforeState)
+  {// 만약 버튼의 상태가 이전과 다르면 
+    beforeState = nowState;
+    if(beforeState == 1)
+    {// 이전 버튼의 상태가 눌리지 않은 상태였다면
+      if(num == 10) num = 0;
+      else num ++;// 숫자를 하나씩 증가
+    }
+
+  }*/
+
+  for (int j = 0 ; j < led_num ; j++)
+  {// 7 세그먼트 LED 출력
+    digitalWrite(leds[j], !(bnums[num] & (1 << j)));
+    // 비트시프트로 뒷자리부터 1비트씩 꺼내기
+  }
+  
+  delay(100);    
+}
