@@ -31,7 +31,7 @@ void setup() {
 
   // SPIslave선택핀 초기화
   pinMode(SPI_CS, OUTPUT);
-
+ 
   // SPI slave선택 해제
   digitalWrite(SPI_CS, HIGH);
   // SPI통신 초기화
@@ -39,7 +39,10 @@ void setup() {
   // SPI통신 시작
   SPI.begin();
   SPI.beginTransaction(settings);
-
+  for(int i = 0; i < 8; ++i)
+  {
+    PCF_01.pinMode(i, OUTPUT);
+  }
   
   PCF_01.begin();
 
