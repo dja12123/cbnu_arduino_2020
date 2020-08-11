@@ -1,0 +1,62 @@
+#include "PCF8574.h"
+#include <Wire.h>
+#include <SPI.h>
+#include "Mcp320x.h"
+
+#define SPI_CS     10        // SPI slave select
+#define ADC_VREF    5000     // 5.0V Vref
+#define ADC_CLK     1600000  // SPI clock 1.6MHz
+
+
+MCP3208 adc(ADC_VREF, SPI_CS);
+PCF8574 PCF_01(0x20);     //객체 생성(I2C 주소 : 0x20)
+int led_num = 7;
+int num = 0;
+
+byte bnums[11] = {
+  0b11111111,//0
+  0b01111111,//1
+  0b00111111,//2
+  0b00011111,//3
+  0b00001111,//4
+  0b00000111,//5
+  0b00000011,//6
+  0b00000001,//7
+  0b00000000 //8
+};
+
+int beforeNum = -1;
+void setup() {
+  Serial.begin(9600);
+
+  // SPIslave선택핀 초기화
+  pinMode(SPI_CS, OUTPUT);
+
+  // SPI slave선택 해제
+  digitalWrite(SPI_CS, HIGH);
+  // SPI통신 초기화
+  SPISettings settings(ADC_CLK, MSBFIRST, SPI_MODE0);
+  // SPI통신 시작
+  SPI.begin();
+  SPI.beginTransaction(settings);
+
+  
+  PCF_01.begin();
+
+}
+void loop() {
+  uint16_t raw = adc.read(MCP3208::Channel::SINGLE_0);
+  num = map(raw, 0, 4095, 0, 7);
+  
+  for (int j = 0 ; j < led_num ; j++)
+  {// 7 세그먼트 LED 출력
+  PCF_01.write(j, !(bnums[num] & (1 << j)));
+  // 비트시프트로 뒷자리부터 1비트씩 꺼내기
+  }
+  //시리얼 출력
+  Serial.println(num);
+
+  
+  
+  delay(100);    
+}
