@@ -50,7 +50,7 @@ void loop() {
   
   for (int j = 0 ; j < led_num ; j++)
   {// 7 세그먼트 LED 출력
-  PCF_01.write(j, !(bnums[num] & (1 << j)));
+  PCF_01.digitalWrite(j, !(bnums[num] & (1 << j)));
   // 비트시프트로 뒷자리부터 1비트씩 꺼내기
   }
   //시리얼 출력
