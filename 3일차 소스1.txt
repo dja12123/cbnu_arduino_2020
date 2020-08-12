@@ -15,7 +15,7 @@ ESP8266 wifi = ESP8266(esp8266Serial);
  
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   esp8266Serial.begin(115200);  // ESP8266
  
   wifi.begin();
